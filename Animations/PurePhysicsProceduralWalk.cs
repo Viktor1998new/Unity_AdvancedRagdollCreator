@@ -22,7 +22,6 @@ public class PurePhysicsProceduralWalk : ProceduralAnimation
         public IKFoot footIK;
 
         [Header("Placement Settings")]
-        [Tooltip("Базовое локальное смещение ноги относительно центра таза (например: X: -0.2 для левой ноги, Y: -0.9, Z: 0)")]
         public Vector3 homeLocalOffset;
 
         [HideInInspector] public Vector3 targetPosition;
@@ -52,7 +51,6 @@ public class PurePhysicsProceduralWalk : ProceduralAnimation
     public float landingBias = 0.35f;
 
     [Header("Step Height Modifier")]
-    [Tooltip("Фактическая максимальная высота подъема стопы в метрах (умножается на stepHeightCurve)")]
     public float maxStepLift = 0.15f;
 
     [Header("Ground")]
@@ -425,29 +423,23 @@ public class PurePhysicsProceduralWalk : ProceduralAnimation
             float forwardT = stepForwardCurve.Evaluate(t);
             Vector3 flatPosition = Vector3.Lerp(stepStartBehind, stepTargetAhead, forwardT);
 
-            // Симулируем высоту подъема на основе вашей stepHeightCurve
             float curveLift = stepHeightCurve.Evaluate(t);
             float arcHeight = curveLift * maxStepLift;
 
-            // Находим итоговую точку в воздухе
             Vector3 airPoint = flatPosition + Vector3.up * arcHeight;
-            Vector3 currentPathPoint = GetGroundPoint(airPoint); // Прижимаем к рельефу земли
+            Vector3 currentPathPoint = GetGroundPoint(airPoint);
 
-            // Отрисовываем траекторию
             if (i > 0)
             {
-                // Рисуем дугу в воздухе (Фаза маха — Swing) зеленовато-голубым цветом
                 Gizmos.color = Color.Lerp(targetColor, Color.green, 0.4f);
                 Gizmos.DrawLine(previousPathPoint, currentPathPoint);
             }
 
-            // Рисуем маленькие точки-узелки вдоль траектории шага
             Gizmos.DrawSphere(currentPathPoint, 0.015f);
 
             previousPathPoint = currentPathPoint;
         }
 
-        // Рисуем обратную прямую линию на земле (Фаза опоры — Stance) белым цветом
         Gizmos.color = new Color(1f, 1f, 1f, 0.3f);
         Gizmos.DrawLine(GetGroundPoint(stepTargetAhead), GetGroundPoint(stepStartBehind));
     }
